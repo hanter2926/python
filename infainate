@@ -1,0 +1,5 @@
+one = 1
+while one == 1:
+    for i in range(one):
+        if i < 1:
+            print(i)
