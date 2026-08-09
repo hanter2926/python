@@ -7,9 +7,8 @@ Y = json.loads(X)
 M = json.loads(A)
 O = json.loads(P)
 print(Y["name"])
-
-# print(A)
-
+print(M["admin"])
+print(O["bihar"])
 
 
  
