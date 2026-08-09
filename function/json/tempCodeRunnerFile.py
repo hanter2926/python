@@ -1,0 +1,1 @@
+print(json.dumps(x, indent=0))

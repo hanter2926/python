@@ -1,6 +1,6 @@
 import json
 x = {
-   " name" : "vikram pal",
+    "name" : "vikram pal",
     "age" : 20,
     "city" : "patana",
     "married" : False,
@@ -10,4 +10,6 @@ x = {
     "bike" : True,
 }
 print(x)
-print(json.dumps(x))
+print(json.dumps("name"))        
+print(json.dumps(x, indent=0))
+print(json.dumps(x, indent=2 , sort_keys=True))
