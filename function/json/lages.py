@@ -10,3 +10,4 @@ x = {
     "bike" : True,
 }
 print(x)
+print(json.dumps(x))
