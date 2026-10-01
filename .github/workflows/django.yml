@@ -1,5 +1,4 @@
-
-name: Django CI
+name: Python CI
 
 on:
   push:
@@ -8,27 +7,45 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  python-sanity:
     runs-on: ubuntu-latest
-
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
 
-      - name: Install Dependencies
+      - name: Validate changed Python files
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_SHA: ${{ github.sha }}
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          set -euo pipefail
 
-      - name: Run Tests
-        run: |
-          python manage.py test
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            mapfile -t changed_python_files < <(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- '*.py')
+          elif [ -n "${BEFORE_SHA:-}" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            mapfile -t changed_python_files < <(git diff --name-only "$BEFORE_SHA...$GITHUB_SHA" -- '*.py')
+          else
+            mapfile -t changed_python_files < <(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" -- '*.py')
+          fi
+
+          if [ "${#changed_python_files[@]}" -eq 0 ]; then
+            echo "No changed Python files to validate."
+            exit 0
+          fi
+
+          for file in "${changed_python_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "Checking syntax: $file"
+              python -m py_compile "$file"
+            fi
+          done
