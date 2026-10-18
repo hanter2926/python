@@ -8,6 +8,7 @@ root.geometry("550x650")
 root.configure(bg="#eaf2f8")
 
 fields = []
+fields =  []
 
 def clear_form():
     for widget in form_frame.winfo_children():
