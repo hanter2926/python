@@ -12,5 +12,5 @@ plt.title("Square Graph")
 plt.xlabel("x Values")
 plt.ylabel("y Values")
 
-plt.grid()
+plt.grid(False)
 plt.show()
